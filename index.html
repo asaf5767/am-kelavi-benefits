@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: "Calm Neutrals" - A palette grounded in warm neutrals (slate, stone) as the main background, with a supportive and clear teal for accents and calls-to-action. This creates a calm, trustworthy, and easy-to-read interface suitable for a support-oriented application. -->
-    <!-- Application Structure Plan: A single-page application (SPA) with three logical, switchable views: Home, Results, and Details. The user flow is designed to be intuitive: 1) Start at 'Home' with categories and a Gemini-powered search. 2) This transitions to a 'Results' view. 3) Clicking a card transitions to a dedicated 'Details' view with an integrated Gemini feature to help draft an inquiry. This task-oriented structure (Find -> Filter -> Focus -> Act) is superior for non-technical users, as it simplifies decision-making and reduces cognitive load by removing floating modals. -->
+    <!-- Application Structure Plan: A single-page application (SPA) with three logical, switchable views: Home, Results, and Details. The user flow is designed to be intuitive: 1) Start at 'Home' with categories and a Gemini-powered search. 2) This transitions to a 'Results' view. 3) Clicking a card transitions to a dedicated 'Details' view with an integrated Gemini feature to help draft an inquiry. This task-oriented structure (Find -> Filter -> Focus -> Act) is superior for non-technical users, simplifying decision-making and reducing cognitive load by removing floating modals. -->
     <!-- Visualization & Content Choices: Report Info: Directory of support services. -> Goal: Organize, Inform, Assist. -> Viz/Presentation Method: 1) Homepage: Interactive category grid, conversational search box, and a category overview chart. 2) Results: Service "cards". 3) Details View: A dedicated page with formatted text, actionable buttons, and a Gemini-powered inquiry drafter. -> Interaction: Click-to-filter, conversational search, click-for-details, click-to-generate-draft. -> Justification: This multi-layered, AI-enhanced approach guides users from a broad need to a specific, actionable step, fulfilling the core requirement of making a dense spreadsheet into an accessible and empowering tool. -> Library/Method: HTML/CSS/Tailwind for layout, Chart.js/Canvas for chart, Gemini API for intelligent features. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -36,9 +36,14 @@
             <p class="text-lg md:text-xl text-slate-600 mt-2">כל המידע, ההקלות והשירותים במקום אחד, בצורה נגישה ופשוטה</p>
         </header>
 
-        <main class="flex-grow">
+        <main id="main-content" class="flex-grow">
+            <div id="initial-loader" class="text-center py-20">
+                <div class="loader inline-block"></div>
+                <p class="mt-4 text-slate-500">טוען נתונים עדכניים...</p>
+            </div>
+
             <!-- Home View -->
-            <div id="home-view">
+            <div id="home-view" class="hidden">
                 <div class="mb-10 max-w-2xl mx-auto">
                     <label for="search-input" class="block text-center text-lg font-semibold text-slate-700 mb-3">צריכים עזרה? תארו את המצב שלכם ונמצא את השירותים המתאימים</label>
                     <div class="relative">
@@ -121,8 +126,19 @@
     </div>
 
     <script>
-        const db = [
+        const categoryIcons = {
+            "תמיכה נפשית": "💬", "מפונים ומתפנים": "🏠", "ילדים ונוער": "👨‍👩‍👧‍👦",
+            "מילואימניקים": "🛡️", "בעלי עסקים": "💼", "הטבות": "🎁",
+            "חקלאות": "🌱", "אישורים וטפסים": "📄", "התנדבות": "🤝",
+            "תיירות": "✈️", "אנשים פרטיים": "👤", "כללי": "🌐"
+        };
         
+        const categoryColors = [
+            '#4f46e5', '#db2777', '#16a34a', '#d97706', '#0891b2', '#6d28d9',
+            '#ca8a04', '#78716c', '#0ea5e9', '#be185d', '#4338ca', '#166534'
+        ];
+
+        const staticDb = [
             {"id":1,"category":"תמיכה נפשית","org":"ערן","details":"עזרה ראשונה נפשית 24/7. אפשר לפנות באופן אנונימי ולקבל תמיכה וסיוע.","phone":"1201","link":"https://www.eran.org.il/","date":"20/06/2025"},
             {"id":2,"category":"תמיכה נפשית","org":"סהר - סיוע והקשבה ברשת","details":"סיוע נפשי אונליין לאנשים במצוקה. מתנדבים זמינים בצ'אט אישי ואנונימי.","phone":"","link":"https://sahar.org.il/","date":"20/06/2025"},
             {"id":3,"category":"בעלי עסקים","org":"קרן סיוע לעסקים","details":"מענקים והלוואות בערבות מדינה לעסקים שנפגעו מהמצב הבטחוני. תהליך הגשה מקוון.","phone":"*6150","link":"https://www.sba.org.il/","date":"21/06/2025"},
@@ -139,19 +155,12 @@
             {"id":14,"category":"בעלי עסקים","org":"הסוכנות לעסקים קטנים ובינוניים","details":"ייעוץ עסקי מסובסד, סדנאות והכשרות לבעלי עסקים קטנים ובינוניים.","phone":"","link":"https://www.sba.org.il/","date":"23/06/2025"}
         ];
 
-        const categoryIcons = {
-            "תמיכה נפשית": "💬", "מפונים ומתפנים": "🏠", "ילדים ונוער": "👨‍👩‍👧‍👦",
-            "מילואימניקים": "🛡️", "בעלי עסקים": "💼", "הטבות": "🎁",
-            "חקלאות": "🌱", "אישורים וטפסים": "📄", "התנדבות": "🤝",
-            "תיירות": "✈️", "אנשים פרטיים": "👤", "כללי": "🌐"
-        };
+        let db = [];
         
-        const categoryColors = [
-            '#4f46e5', '#db2777', '#16a34a', '#d97706', '#0891b2', '#6d28d9',
-            '#ca8a04', '#78716c', '#0ea5e9', '#be185d', '#4338ca', '#166534'
-        ];
-
         document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.getElementById('main-content');
+            const initialLoader = document.getElementById('initial-loader');
+
             const searchInput = document.getElementById('search-input');
             const searchButton = document.getElementById('search-button');
             const searchButtonText = document.getElementById('search-button-text');
@@ -180,24 +189,71 @@
 
             let currentItemId = null;
 
-            const init = () => {
+            const parseCSV = (csvText) => {
+                const lines = csvText.trim().split('\n');
+                if (lines.length < 2) return [];
+
+                const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+                const categoryIndex = headers.indexOf('תחום קטגוריה');
+                const orgIndex = headers.indexOf('שם המשרד/הארגון');
+                const linkIndex = headers.indexOf('קישורים');
+                const detailsIndex = headers.indexOf('פרטים (רשות ואופציונלי)');
+                const phoneIndex = headers.indexOf('מס\' טלפון');
+                const dateIndex = headers.indexOf('תאריך');
+                
+                const data = [];
+                for (let i = 1; i < lines.length; i++) {
+                    // This regex handles commas inside quoted fields
+                    const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    const entry = {
+                        id: i,
+                        category: (values[categoryIndex] || '').trim().replace(/"/g, ''),
+                        org: (values[orgIndex] || '').trim().replace(/"/g, ''),
+                        link: (values[linkIndex] || '').trim().replace(/"/g, ''),
+                        details: (values[detailsIndex] || '').trim().replace(/"/g, ''),
+                        phone: (values[phoneIndex] || '').trim().replace(/"/g, ''),
+                        date: (values[dateIndex] || '').trim().replace(/"/g, ''),
+                    };
+                    if (entry.org) { 
+                        data.push(entry);
+                    }
+                }
+                return data;
+            };
+
+            const fetchAndParseData = async () => {
+                const sheetUrl = 'https://docs.google.com/spreadsheets/d/1-OhoadrXgz-FJZAgB_43Vdm8TXwgzaEL5pZi40pY0-w/export?format=csv&gid=0';
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}`;
+                
+                try {
+                    const response = await fetch(proxyUrl);
+                    if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+                    const csvText = await response.text();
+                    const parsedData = parseCSV(csvText);
+                    if (parsedData.length === 0) throw new Error('Failed to parse data from the sheet.');
+                    db = parsedData;
+                    console.log("Successfully fetched and parsed live data.");
+                } catch (error) {
+                    console.warn("Failed to fetch or parse live data, using static fallback.", error);
+                    db = staticDb;
+                }
+            };
+
+            const initApp = async () => {
+                await fetchAndParseData();
+                initialLoader.style.display = 'none';
                 renderCategories();
                 renderChart();
                 attachEventListeners();
+                homeView.style.display = 'block';
             };
             
             async function callGemini(prompt, isJson = false) {
                 const apiKey = "";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                
                 let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
                 const payload = { contents: chatHistory };
-
-                if(isJson){
-                    payload.generationConfig = {
-                        responseMimeType: "application/json",
-                    };
-                }
+                if (isJson) payload.generationConfig = { responseMimeType: "application/json" };
 
                 try {
                     const response = await fetch(apiUrl, {
@@ -205,14 +261,9 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-                    if (!response.ok) {
-                         throw new Error(`API call failed with status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`API call failed with status: ${response.status}`);
                     const result = await response.json();
-                    
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
+                    if (result.candidates?.[0]?.content?.parts?.[0]) {
                         return result.candidates[0].content.parts[0].text;
                     } else {
                         throw new Error('Invalid response structure from API');
@@ -225,7 +276,7 @@
 
 
             const renderCategories = () => {
-                const categories = [...new Set(db.map(item => item.category))];
+                const categories = [...new Set(db.map(item => item.category))].filter(Boolean);
                 categoryGrid.innerHTML = categories.map(cat => `
                     <button data-category="${cat}" class="category-btn bg-white p-4 rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center aspect-square">
                         <span class="text-4xl mb-2">${categoryIcons[cat] || '❓'}</span>
@@ -237,7 +288,7 @@
             const renderChart = () => {
                 const ctx = document.getElementById('categoryChart').getContext('2d');
                 const categoryCounts = db.reduce((acc, item) => {
-                    acc[item.category] = (acc[item.category] || 0) + 1;
+                    if(item.category) acc[item.category] = (acc[item.category] || 0) + 1;
                     return acc;
                 }, {});
                 const labels = Object.keys(categoryCounts);
@@ -282,30 +333,21 @@
                  const item = db.find(d => d.id == itemId);
                 if (!item) return;
                 currentItemId = itemId;
-
                 detailsTitle.textContent = item.org;
                 let bodyHtml = `<p class="mb-6 text-lg">${item.details}</p>`;
-                
-                if (item.link) {
-                    bodyHtml += `<a href="${item.link}" target="_blank" class="no-underline inline-block w-full text-center px-6 py-3 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 transition mb-3">לאתר האינטרנט</a>`;
-                }
-                 if (item.phone) {
-                    bodyHtml += `<a href="tel:${item.phone}" class="no-underline inline-block w-full text-center px-6 py-3 bg-slate-200 text-slate-800 font-bold rounded-lg hover:bg-slate-300 transition">📞 לחיוג: ${item.phone}</a>`;
-                }
-
+                if (item.link) bodyHtml += `<a href="${item.link}" target="_blank" class="no-underline inline-block w-full text-center px-6 py-3 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 transition mb-3">לאתר האינטרנט</a>`;
+                if (item.phone) bodyHtml += `<a href="tel:${item.phone}" class="no-underline inline-block w-full text-center px-6 py-3 bg-slate-200 text-slate-800 font-bold rounded-lg hover:bg-slate-300 transition">📞 לחיוג: ${item.phone}</a>`;
                 detailsBody.innerHTML = bodyHtml;
-                draftContainer.style.display = 'none'; // Hide draft on new item
+                draftContainer.style.display = 'none';
             };
             
             const showView = (view) => {
                 homeView.style.display = 'none';
                 resultsView.style.display = 'none';
                 detailsView.style.display = 'none';
-
                 if (view === 'home') homeView.style.display = 'block';
                 if (view === 'results') resultsView.style.display = 'block';
                 if (view === 'details') detailsView.style.display = 'block';
-
                 window.scrollTo(0, 0);
             };
 
@@ -317,11 +359,10 @@
                 searchLoader.classList.remove('hidden');
                 searchButton.disabled = true;
 
-                const allCategories = [...new Set(db.map(item => item.category))];
+                const allCategories = [...new Set(db.map(item => item.category))].filter(Boolean);
                 const prompt = `Based on the following user description of their situation, identify the most relevant service categories from this list: [${allCategories.join(", ")}]. Return ONLY a JSON object with a single key "categories" which is an array of the matching category strings. User description in Hebrew: "${userInput}"`;
 
                 const result = await callGemini(prompt, true);
-                
                 if (result) {
                     try {
                         const parsedResult = JSON.parse(result);
@@ -339,7 +380,6 @@
                 } else {
                     renderResults([], `שירות המיפוי האוטומטי אינו זמין כעת`);
                 }
-
                 showView('results');
                 searchButtonText.classList.remove('hidden');
                 searchLoader.classList.add('hidden');
@@ -356,9 +396,7 @@
                 draftInquiryBtn.disabled = true;
 
                 const prompt = `A user needs help contacting an organization. Based on the organization's name and service description, draft a polite, concise, and clear inquiry template in Hebrew. The template should be ready to use, including a polite opening and closing, and should have clear placeholders in brackets like "[שם מלא]" for the user's name and "[תיאור קצר של המצב]" for their situation. The tone should be respectful and clear. Organization Name: "${item.org}". Service Description: "${item.details}".`;
-
-                const result = await callGemini(prompt);
-
+                const result = await callGeminis(prompt);
                 if (result) {
                     draftOutput.textContent = result;
                     draftContainer.style.display = 'block';
@@ -366,7 +404,6 @@
                     draftOutput.textContent = 'לא הצלחנו ליצור טיוטה כרגע. נסו שוב מאוחר יותר.';
                     draftContainer.style.display = 'block';
                 }
-
                 draftBtnText.classList.remove('hidden');
                 draftLoader.classList.add('hidden');
                 draftInquiryBtn.disabled = false;
@@ -397,7 +434,6 @@
                         showView('results');
                     }
                 });
-
                 resultsContainer.addEventListener('click', (e) => {
                     const btn = e.target.closest('.details-btn');
                     if (btn) {
@@ -405,7 +441,6 @@
                         showView('details');
                     }
                 });
-                
                 searchButton.addEventListener('click', handleGeminiSearch);
                 searchInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -413,17 +448,15 @@
                         handleGeminiSearch();
                     }
                 });
-                
                 backToHomeButton.addEventListener('click', () => showView('home'));
                 backToResultsButton.addEventListener('click', () => showView('results'));
-                
                 draftInquiryBtn.addEventListener('click', handleDraftInquiry);
                 copyDraftBtn.addEventListener('click', () => {
                     if(draftOutput.textContent) copyToClipboard(draftOutput.textContent);
                 });
             };
 
-            init();
+            initApp();
         });
     </script>
 </body>
