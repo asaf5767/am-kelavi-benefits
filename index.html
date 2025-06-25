@@ -33,13 +33,13 @@
         
         <header class="text-center mb-8">
             <h1 class="text-4xl md:text-5xl font-bold text-teal-700">מרכז מידע, סיוע והטבות</h1>
-            <p class="text-lg md:text-xl text-slate-600 mt-2">כל המידע, ההקלות והשירותים במקום אחד, בצורה נגישה ופשוטה</p>
+            <p id="service-counter" class="text-lg md:text-xl text-slate-600 mt-2"></p>
         </header>
 
         <main id="main-content" class="flex-grow">
             <div id="initial-loader" class="text-center py-20">
                 <div class="loader inline-block"></div>
-                <p class="mt-4 text-slate-500">טוען נתונים עדכניים...</p>
+                <p class="mt-4 text-slate-500">טוען נתונים...</p>
             </div>
 
             <!-- Home View -->
@@ -90,7 +90,11 @@
                 </div>
                 <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-4xl mx-auto">
                     <header class="pb-4 border-b border-slate-200 mb-6">
-                        <h3 id="details-title" class="text-3xl sm:text-4xl font-bold text-teal-700"></h3>
+                        <div class="flex items-center flex-wrap gap-3 mb-2">
+                            <span id="details-category" class="text-sm font-bold uppercase text-teal-600 bg-teal-50 px-3 py-1 rounded-full"></span>
+                            <span id="details-subcategory" class="text-sm font-bold uppercase text-amber-600 bg-amber-50 px-3 py-1 rounded-full"></span>
+                        </div>
+                        <h3 id="details-title" class="text-3xl sm:text-4xl font-bold text-slate-800"></h3>
                     </header>
                     <div id="details-body" class="prose max-w-none text-slate-600 leading-relaxed"></div>
                      <div class="mt-8 border-t pt-6">
@@ -130,56 +134,74 @@
             "תמיכה נפשית": "💬", "מפונים ומתפנים": "🏠", "ילדים ונוער": "👨‍👩‍👧‍👦",
             "מילואימניקים": "🛡️", "בעלי עסקים": "💼", "הטבות": "🎁",
             "חקלאות": "🌱", "אישורים וטפסים": "📄", "התנדבות": "🤝",
-            "תיירות": "✈️", "אנשים פרטיים": "👤", "כללי": "🌐"
+            "תיירות": "✈️", "אנשים פרטיים": "👤", "כללי": "🌐", "זכויות": "⚖️",
+            "חינוך": "🎓", "עבודה": "👷", "בריאות": "❤️‍🩹", "דיור": "🏡", "רכב וביטוח": "🚗",
+            "משפטי": "🏛️", "בעלי חיים": "🐾", "תרבות ופנאי": "🎭"
         };
         
         const categoryColors = [
             '#4f46e5', '#db2777', '#16a34a', '#d97706', '#0891b2', '#6d28d9',
-            '#ca8a04', '#78716c', '#0ea5e9', '#be185d', '#4338ca', '#166534'
+            '#ca8a04', '#78716c', '#0ea5e9', '#be185d', '#4338ca', '#166534',
+            '#e11d48', '#8b5cf6', '#f59e0b', '#10b981', '#06b6d4', '#f97316',
+            '#84cc16', '#22d3ee', '#a855f7', '#f43f5e'
         ];
-
-        const staticDb = [
-            {"id":1,"category":"תמיכה נפשית","org":"ערן","details":"עזרה ראשונה נפשית 24/7. אפשר לפנות באופן אנונימי ולקבל תמיכה וסיוע.","phone":"1201","link":"https://www.eran.org.il/","date":"20/06/2025"},
-            {"id":2,"category":"תמיכה נפשית","org":"סהר - סיוע והקשבה ברשת","details":"סיוע נפשי אונליין לאנשים במצוקה. מתנדבים זמינים בצ'אט אישי ואנונימי.","phone":"","link":"https://sahar.org.il/","date":"20/06/2025"},
-            {"id":3,"category":"בעלי עסקים","org":"קרן סיוע לעסקים","details":"מענקים והלוואות בערבות מדינה לעסקים שנפגעו מהמצב הבטחוני. תהליך הגשה מקוון.","phone":"*6150","link":"https://www.sba.org.il/","date":"21/06/2025"},
-            {"id":4,"category":"ילדים ונוער","org":"עלם - עמותה לנוער במצבי סיכון","details":"מספקת מענה לבני נוער וצעירים במצבי סיכון ומצוקה, כולל קו חם, מרכזים ניידים ודיור.","phone":"03-620-3333","link":"https://www.elem.org.il/","date":"21/06/2025"},
-            {"id":5,"category":"מפונים ומתפנים","org":"משרד הפנים - מרכז סיוע למפונים","details":"ריכוז כל המידע והזכויות למפונים מהצפון והדרום. כולל סיוע בשכר דירה, מענקי הסתגלות וחינוך.","phone":"*4585","link":"https://www.gov.il/he/departments/ministry_of_interior/govil-landing-page","date":"22/06/2025"},
-            {"id":6,"category":"הטבות","org":"מועדון 'בהצדעה'","details":"הטבות והנחות לחיילי מילואים ובני משפחותיהם במגוון רשתות, אטרקציות ומופעים.","phone":"","link":"https://www.behatzdaa.org.il/","date":"22/06/2025"},
-            {"id":7,"category":"מילואימניקים","org":"האגף והקרן לחיילים משוחררים","details":"סיוע בהשכלה, תעסוקה, וזכויות כלכליות לחיילי מילואים ששירתו מעל תקופה מסוימת.","phone":"*9144","link":"https://www.hachvana.mod.gov.il/","date":"20/06/2025"},
-            {"id":8,"category":"חקלאות","org":"קנט - הקרן לביטוח נזקי טבע בחקלאות","details":"פיצויים לחקלאים על נזקים ישירים ועקיפים שנגרמו כתוצאה מהמלחמה.","phone":"*3930","link":"https://www.kanat.co.il/","date":"23/06/2025"},
-            {"id":9,"category":"כללי","org":"כל זכות","details":"מאגר מידע מקיף על זכויות תושבים במגוון תחומים: בריאות, רווחה, תעסוקה ועוד.","phone":"","link":"https://www.kolzchut.org.il/he/Main_Page","date":"23/06/2025"},
-            {"id":10,"category":"אישורים וטפסים","org":"רשות המיסים","details":"דחיית מועדי דיווח ותשלום למע\"מ, מקדמות ומס הכנסה לתושבי העוטף ולמגויסים.","phone":"*4954","link":"https://www.gov.il/he/departments/israel_tax_authority","date":"21/06/2025"},
-            {"id":11,"category":"התנדבות","org":"לב אחד - סיוע אזרחי בחירום","details":"ריכוז יוזמות התנדבות אזרחיות לסיוע לחיילים, משפחות מפונות, חקלאים ועוד.","phone":"","link":"https://www.lev-eched.org.il/","date":"20/06/2025"},
-            {"id":12,"category":"תיירות","org":"משרד התיירות","details":"מענקים ומסלולי סיוע לעסקי תיירות שנפגעו, כולל בתי מלון, צימרים ואטרקציות.","phone":"*3866","link":"https://www.gov.il/he/departments/ministry_of_tourism","date":"22/06/2025"},
-            {"id":13,"category":"אנשים פרטיים","org":"המוסד לביטוח לאומי","details":"מידע על מענקים מיוחדים, דמי אבטלה, וזכויות סוציאליות לנפגעי פעולות איבה.","phone":"*6050","link":"https://www.btl.gov.il/","date":"23/06/2025"},
-            {"id":14,"category":"בעלי עסקים","org":"הסוכנות לעסקים קטנים ובינוניים","details":"ייעוץ עסקי מסובסד, סדנאות והכשרות לבעלי עסקים קטנים ובינוניים.","phone":"","link":"https://www.sba.org.il/","date":"23/06/2025"}
+        
+        const staticDb = [{"id":1,"category":"הטבות","subCategory":"הנחות כלליות","org":"רשות הטבע והגנים","details":"כניסה ללא תשלום לגנים לאומיים ושמורות טבע למפוני העוטף, הצפון וחיילי המילואים","phone":"","link":"https://www.parks.org.il/heravon-parks/"},
+        {"id":2,"category":"הטבות","subCategory":"הנחות כלליות","org":"מפעל הפיס - פרויקט 'תרבות וקהילה'","details":"מגוון רחב של מופעים והצגות במחיר מסובסד של 20 ש\"ח בלבד למפונים, משפחותיהם וכוחות הביטחון.","phone":"","link":"https://www.pais.co.il/tarbut/"},
+        {"id":3,"category":"הטבות","subCategory":"הנחות כלליות","org":"איגוד המוזיאונים ואיקו\"ם ישראל","details":"עשרות מוזיאונים ברחבי הארץ פתוחים בחינם ומציעים פעילויות למשפחות המפונים.","phone":"","link":"http://www.icom.org.il/news/162"},
+        {"id":4,"category":"הטבות","subCategory":"הנחות כלליות","org":"רכבת ישראל","details":"נסיעה חינם ברכבת למפונים מהעוטף ומהצפון.","phone":"*5770","link":"https://www.rail.co.il/"},
+        {"id":5,"category":"הטבות","subCategory":"הנחות כלליות","org":"חברות סלולר","details":"חברות הסלולר מציעות חבילות סיוע למפונים וחיילים. יש ליצור קשר עם החברות.","phone":"","link":""},
+        {"id":6,"category":"תמיכה נפשית","subCategory":"סיוע כללי","org":"ער\"ן - עזרה ראשונה נפשית","details":"עזרה ראשונה נפשית 24/7. אפשר לפנות באופן אנונימי ולקבל תמיכה וסיוע.","phone":"1201","link":"https://www.eran.org.il/"},
+        {"id":7,"category":"תמיכה נפשית","subCategory":"סיוע כללי","org":"סה\"ר - סיוע והקשבה ברשת","details":"סיוע נפשי אונליין לאנשים במצוקה. מתנדבים זמינים בצ'אט אישי ואנונימי.","phone":"","link":"https://sahar.org.il/"},
+        {"id":8,"category":"תמיכה נפשית","subCategory":"טיפול וליווי","org":"נט\"ל - נפגעי טראומה על רקע לאומי","details":"סיוע נפשי ותמיכה לנפגעי טראומה כתוצאה מטרור ומלחמה. קו סיוע וטיפולים פרטניים.","phone":"1-800-363-363","link":"https://www.natal.org.il/"},
+        {"id":9,"category":"תמיכה נפשית","subCategory":"טיפול וליווי","org":"מרכזי חוסן","details":"מרכזי חוסן ביישובי העוטף והדרום מציעים טיפול ותמיכה לתושבים.","phone":"","link":"https://www.hosecenter.org.il/"},
+        {"id":10,"category":"ילדים ונוער","subCategory":"סיוע כללי","org":"עלם - עמותה לנוער במצבי סיכון","details":"מספקת מענה לבני נוער וצעירים במצבי סיכון ומצוקה, כולל קו חם, מרכזים ניידים ודיור.","phone":"03-620-3333","link":"https://www.elem.org.il/"},
+        {"id":11,"category":"ילדים ונוער","subCategory":"חינוך","org":"משרד החינוך - קו פתוח","details":"קו פתוח להורים, תלמידים וצוותי חינוך לקבלת תמיכה וסיוע רגשי ופדגוגי.","phone":"*6552","link":"https://parents.education.gov.il/prhnet/parents/hot-line"},
+        {"id":12,"category":"בעלי חיים","subCategory":"סיוע כללי","org":"תנו לחיות לחיות","details":"קו חירום וסיוע לבעלי חיים במצוקה. חילוץ, טיפול רפואי ואימוץ.","phone":"*2343","link":"https://www.letlive.org.il/"},
+        {"id":13,"category":"מפונים ומתפנים","subCategory":"דיור ואירוח","org":"משרד הפנים - מרכז סיוע למפונים","details":"ריכוז כל המידע והזכויות למפונים מהצפון והדרום. כולל סיוע בשכר דירה, מענקי הסתגלות וחינוך.","phone":"*4585","link":"https://www.gov.il/he/departments/ministry_of_interior/govil-landing-page"},
+        {"id":14,"category":"מפונים ומתפנים","subCategory":"סיוע כלכלי","org":"רשות המיסים - מענק אכלוס","details":"מענק אכלוס עצמאי למפונים מהצפון והדרום שלא שוהים במלונות במימון המדינה.","phone":"*4954","link":"https://www.gov.il/he/service/request-for-evacuation-grant-by-local-authority"},
+        {"id":15,"category":"מילואימניקים","subCategory":"זכויות כלליות","org":"האגף והקרן לחיילים משוחררים","details":"סיוע בהשכלה, תעסוקה, וזכויות כלכליות לחיילי מילואים ששירתו מעל תקופה מסוימת.","phone":"*9144","link":"https://www.hachvana.mod.gov.il/"},
+        {"id":16,"category":"מילואימניקים","subCategory":"תעסוקה","org":"התאחדות התעשיינים","details":"סיוע במציאת עבודה לחיילי מילואים משוחררים בתעשייה.","phone":"*8558","link":"https://www.industry.org.il/"},
+        {"id":17,"category":"בעלי עסקים","subCategory":"סיוע כלכלי","org":"קרן סיוע לעסקים","details":"מענקים והלוואות בערבות מדינה לעסקים שנפגעו מהמצב הבטחוני. תהליך הגשה מקוון.","phone":"*6150","link":"https://www.sba.org.il/"},
+        {"id":18,"category":"בעלי עסקים","subCategory":"ייעוץ והכוונה","org":"הסוכנות לעסקים קטנים ובינוניים","details":"ייעוץ עסקי מסובסד, סדנאות והכשרות לבעלי עסקים קטנים ובינוניים.","phone":"","link":"https://www.sba.org.il/"},
+        {"id":19,"category":"חקלאות","subCategory":"פיצויים","org":"קנט - הקרן לביטוח נזקי טבע בחקלאות","details":"פיצויים לחקלאים על נזקים ישירים ועקיפים שנגרמו כתוצאה מהמלחמה.","phone":"*3930","link":"https://www.kanat.co.il/"},
+        {"id":20,"category":"זכויות","subCategory":"מידע כללי","org":"כל זכות","details":"מאגר מידע מקיף על זכויות תושבים במגוון תחומים: בריאות, רווחה, תעסוקה ועוד.","phone":"","link":"https://www.kolzchut.org.il/he/Main_Page"},
+        {"id":21,"category":"אישורים וטפסים","subCategory":"רשויות ומיסים","org":"רשות המיסים","details":"דחיית מועדי דיווח ותשלום למע\"מ, מקדמות ומס הכנסה לתושבי העוטף ולמגויסים.","phone":"*4954","link":"https://www.gov.il/he/departments/israel_tax_authority"},
+        {"id":22,"category":"התנדבות","subCategory":"סיוע אזרחי","org":"לב אחד - סיוע אזרחי בחירום","details":"ריכוז יוזמות התנדבות אזרחיות לסיוע לחיילים, משפחות מפונות, חקלאים ועוד.","phone":"","link":"https://www.lev-eched.org.il/"},
+        {"id":23,"category":"תיירות","subCategory":"סיוע כלכלי","org":"משרד התיירות","details":"מענקים ומסלולי סיוע לעסקי תיירות שנפגעו, כולל בתי מלון, צימרים ואטרקציות.","phone":"*3866","link":"https://www.gov.il/he/departments/ministry_of_tourism"},
+        {"id":24,"category":"אנשים פרטיים","subCategory":"זכויות סוציאליות","org":"המוסד לביטוח לאומי","details":"מידע על מענקים מיוחדים, דמי אבטלה, וזכויות סוציאליות לנפגעי פעולות איבה.","phone":"*6050","link":"https://www.btl.gov.il/"},
+        {"id":25,"category":"רכב וביטוח","subCategory":"רישוי רכב","org":"משרד התחבורה - רישיונות רכב","details":"חידוש אוטומטי של רישיונות רכב שתוקפם פג. אין צורך לבצע מבחן רישוי (טסט) בתקופת ההארכה.","phone":"","link":"https://www.gov.il/he/pages/car_licences_067_2025"},
+        {"id":26,"category":"זכויות","subCategory":"רכב וביטוח","org":"משרד התחבורה - רישיונות נהיגה","details":"הארכת תוקף רישיונות נהיגה שפג תוקפם עקב המצב הבטחוני.","phone":"","link":"https://www.gov.il/he/pages/driving_licenses_extension_130625"},
+        {"id":27,"category":"בריאות","subCategory":"שירותי רפואה","org":"קופות החולים - מוקדים 24/7","details":"כל קופות החולים מפעילות מוקדי חירום טלפוניים ודיגיטליים 24/7 לייעוץ רפואי.","phone":"*2700 (כללית), *3555 (מכבי), *3833 (מאוחדת), *507 (לאומית)","link":""},
+        {"id":28,"category":"משפטי","subCategory":"סיוע כללי","org":"הסיוע המשפטי - משרד המשפטים","details":"ייעוץ וייצוג משפטי ללא עלות או בעלות מופחתת לזכאים במגוון תחומים.","phone":"*6405","link":"https://www.gov.il/he/departments/legal-aid"},
+        {"id":29,"category":"חינוך","subCategory":"השכלה גבוהה","org":"התאחדות הסטודנטים והסטודנטיות","details":"מוקד סיוע לסטודנטים במילואים, סטודנטים מפונים וסטודנטים בקו העימות.","phone":"*3133","link":"https://www.nuis.co.il/"},
+        {"id":30,"category":"דיור","subCategory":"שכר דירה","org":"משרד הבינוי והשיכון","details":"סיוע בשכר דירה למשפחות ויחידים העומדים בקריטריונים.","phone":"*5442","link":"https://www.gov.il/he/departments/ministry_of_construction_and_housing"},
+        {"id":31,"category":"עבודה","subCategory":"זכויות עובדים","org":"קו לעובד","details":"סיוע ומידע בנושאי זכויות עובדים, תנאי העסקה ופיטורים.","phone":"*2560","link":"https://www.kavlaoved.org.il/"},
+        {"id":32,"category":"תרבות ופנאי","subCategory":"כניסה חינם","org":"רשות הטבע והגנים","details":"כניסה חינם לחלק מהגנים הלאומיים ושמורות הטבע למפונים ולמשפחות מילואימניקים.","phone":"*3639","link":"https://www.parks.org.il/"}
         ];
 
         let db = [];
         
         document.addEventListener('DOMContentLoaded', () => {
-            const mainContent = document.getElementById('main-content');
+            const serviceCounter = document.getElementById('service-counter');
             const initialLoader = document.getElementById('initial-loader');
-
             const searchInput = document.getElementById('search-input');
             const searchButton = document.getElementById('search-button');
             const searchButtonText = document.getElementById('search-button-text');
             const searchLoader = document.getElementById('search-loader');
             const categoryGrid = document.getElementById('category-grid');
-
             const homeView = document.getElementById('home-view');
             const resultsView = document.getElementById('results-view');
             const detailsView = document.getElementById('details-view');
-            
             const resultsTitle = document.getElementById('results-title');
             const resultsContainer = document.getElementById('results-container');
             const noResults = document.getElementById('no-results');
             const backToHomeButton = document.getElementById('back-to-home-button');
             const backToResultsButton = document.getElementById('back-to-results-button');
-            
             const detailsTitle = document.getElementById('details-title');
+            const detailsCategory = document.getElementById('details-category');
+            const detailsSubCategory = document.getElementById('details-subcategory');
             const detailsBody = document.getElementById('details-body');
-
             const draftInquiryBtn = document.getElementById('draft-inquiry-btn');
             const draftBtnText = document.getElementById('draft-btn-text');
             const draftLoader = document.getElementById('draft-loader');
@@ -190,58 +212,72 @@
             let currentItemId = null;
 
             const parseCSV = (csvText) => {
-                const lines = csvText.trim().split('\n');
+                const lines = csvText.trim().split(/\r?\n/);
                 if (lines.length < 2) return [];
-
-                const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-                const categoryIndex = headers.indexOf('תחום קטגוריה');
-                const orgIndex = headers.indexOf('שם המשרד/הארגון');
-                const linkIndex = headers.indexOf('קישורים');
-                const detailsIndex = headers.indexOf('פרטים (רשות ואופציונלי)');
-                const phoneIndex = headers.indexOf('מס\' טלפון');
-                const dateIndex = headers.indexOf('תאריך');
                 
+                const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+                const columnMapping = {
+                    category: headers.indexOf('קטגוריה'),
+                    subCategory: headers.indexOf('תת קטגוריה'),
+                    org: headers.indexOf('שם המשרד/הארגון'),
+                    link: headers.indexOf('לינק לפרטים'),
+                    details: headers.indexOf('פרטים (אופציונלי)'),
+                    phone: headers.indexOf('מס\' טלפון'),
+                };
+
                 const data = [];
                 for (let i = 1; i < lines.length; i++) {
-                    // This regex handles commas inside quoted fields
-                    const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    const line = lines[i];
+                    if (!line.trim()) continue;
+
+                    const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     const entry = {
                         id: i,
-                        category: (values[categoryIndex] || '').trim().replace(/"/g, ''),
-                        org: (values[orgIndex] || '').trim().replace(/"/g, ''),
-                        link: (values[linkIndex] || '').trim().replace(/"/g, ''),
-                        details: (values[detailsIndex] || '').trim().replace(/"/g, ''),
-                        phone: (values[phoneIndex] || '').trim().replace(/"/g, ''),
-                        date: (values[dateIndex] || '').trim().replace(/"/g, ''),
+                        category: (values[columnMapping.category] || '').trim().replace(/"/g, ''),
+                        subCategory: (values[columnMapping.subCategory] || '').trim().replace(/"/g, ''),
+                        org: (values[columnMapping.org] || '').trim().replace(/"/g, ''),
+                        link: (values[columnMapping.link] || '').trim().replace(/"/g, ''),
+                        details: (values[columnMapping.details] || '').trim().replace(/"/g, ''),
+                        phone: (values[columnMapping.phone] || '').trim().replace(/"/g, ''),
                     };
-                    if (entry.org) { 
+
+                    if (entry.org && entry.category) { 
                         data.push(entry);
                     }
                 }
                 return data;
             };
 
-            const fetchAndParseData = async () => {
+            const loadData = async () => {
+                // Set the database to the complete static data first.
+                db = staticDb;
+                console.log(`Loaded ${db.length} records from static fallback.`);
+
+                // Then, try to fetch live data to potentially update it.
                 const sheetUrl = 'https://docs.google.com/spreadsheets/d/1-OhoadrXgz-FJZAgB_43Vdm8TXwgzaEL5pZi40pY0-w/export?format=csv&gid=0';
                 const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}`;
                 
                 try {
-                    const response = await fetch(proxyUrl);
+                    const response = await fetch(proxyUrl, { cache: "no-store" });
                     if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
                     const csvText = await response.text();
                     const parsedData = parseCSV(csvText);
-                    if (parsedData.length === 0) throw new Error('Failed to parse data from the sheet.');
-                    db = parsedData;
-                    console.log("Successfully fetched and parsed live data.");
+                    // Only replace the db if the fetched data is valid and more complete
+                    if (parsedData.length > db.length) {
+                        db = parsedData;
+                        console.log(`Successfully updated to ${db.length} live records.`);
+                    } else {
+                        console.log("Live data was not newer or was incomplete, keeping static data.");
+                    }
                 } catch (error) {
-                    console.warn("Failed to fetch or parse live data, using static fallback.", error);
-                    db = staticDb;
+                    console.warn("Could not fetch live data. The app will run with the complete built-in data.", error);
                 }
             };
 
             const initApp = async () => {
-                await fetchAndParseData();
+                await loadData(); // Load data using the new strategy
                 initialLoader.style.display = 'none';
+                serviceCounter.textContent = `סה"כ ${db.length} שירותים והטבות זמינים עבורך`;
                 renderCategories();
                 renderChart();
                 attachEventListeners();
@@ -274,7 +310,6 @@
                 }
             }
 
-
             const renderCategories = () => {
                 const categories = [...new Set(db.map(item => item.category))].filter(Boolean);
                 categoryGrid.innerHTML = categories.map(cat => `
@@ -293,7 +328,10 @@
                 }, {});
                 const labels = Object.keys(categoryCounts);
                 const data = Object.values(categoryCounts);
-                new Chart(ctx, {
+                if (window.myChart instanceof Chart) {
+                    window.myChart.destroy();
+                }
+                window.myChart = new Chart(ctx, {
                     type: 'bar',
                     data: { labels: labels, datasets: [{ label: 'מספר שירותים', data: data, backgroundColor: categoryColors.slice(0, labels.length), borderColor: '#ffffff', borderWidth: 2, borderRadius: 5 }] },
                     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { bodyFont: { family: 'Rubik' }, titleFont: { family: 'Rubik' }}},
@@ -316,12 +354,15 @@
                         card.className = "bg-white p-6 rounded-xl shadow-md flex flex-col transition hover:shadow-lg hover:-translate-y-1";
                         card.innerHTML = `
                             <div class="flex-grow">
-                                <span class="text-xs font-bold uppercase text-teal-600">${item.category}</span>
+                                <div class="flex items-center flex-wrap gap-2 mb-2">
+                                    <span class="text-xs font-bold uppercase text-teal-600 bg-teal-50 px-2 py-1 rounded-full">${item.category}</span>
+                                    ${item.subCategory ? `<span class="text-xs font-bold uppercase text-amber-600 bg-amber-50 px-2 py-1 rounded-full">${item.subCategory}</span>` : ''}
+                                </div>
                                 <h3 class="text-xl font-bold mt-1 mb-2 text-slate-800">${item.org}</h3>
-                                <p class="text-slate-600 text-sm leading-relaxed">${item.details.substring(0, 100)}${item.details.length > 100 ? '...' : ''}</p>
+                                <p class="text-slate-600 text-sm leading-relaxed">${(item.details || '').substring(0, 100)}${(item.details || '').length > 100 ? '...' : ''}</p>
                             </div>
                             <div class="mt-4 flex-shrink-0">
-                                <button data-id="${item.id}" class="details-btn w-full px-4 py-2 bg-teal-50 text-teal-700 font-semibold rounded-lg hover:bg-teal-100 transition">לכל הפרטים</button>
+                                <button data-id="${item.id}" class="details-btn w-full px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 transition">לכל הפרטים</button>
                             </div>
                         `;
                         resultsContainer.appendChild(card);
@@ -334,6 +375,10 @@
                 if (!item) return;
                 currentItemId = itemId;
                 detailsTitle.textContent = item.org;
+                detailsCategory.textContent = item.category;
+                detailsSubCategory.textContent = item.subCategory;
+                detailsSubCategory.style.display = item.subCategory ? 'inline-block' : 'none';
+
                 let bodyHtml = `<p class="mb-6 text-lg">${item.details}</p>`;
                 if (item.link) bodyHtml += `<a href="${item.link}" target="_blank" class="no-underline inline-block w-full text-center px-6 py-3 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 transition mb-3">לאתר האינטרנט</a>`;
                 if (item.phone) bodyHtml += `<a href="tel:${item.phone}" class="no-underline inline-block w-full text-center px-6 py-3 bg-slate-200 text-slate-800 font-bold rounded-lg hover:bg-slate-300 transition">📞 לחיוג: ${item.phone}</a>`;
@@ -396,7 +441,7 @@
                 draftInquiryBtn.disabled = true;
 
                 const prompt = `A user needs help contacting an organization. Based on the organization's name and service description, draft a polite, concise, and clear inquiry template in Hebrew. The template should be ready to use, including a polite opening and closing, and should have clear placeholders in brackets like "[שם מלא]" for the user's name and "[תיאור קצר של המצב]" for their situation. The tone should be respectful and clear. Organization Name: "${item.org}". Service Description: "${item.details}".`;
-                const result = await callGeminis(prompt);
+                const result = await callGemini(prompt);
                 if (result) {
                     draftOutput.textContent = result;
                     draftContainer.style.display = 'block';
